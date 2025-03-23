@@ -1,1 +1,1 @@
-import './task-filter.css'
+import './task-filter.css';
