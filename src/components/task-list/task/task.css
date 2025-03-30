@@ -201,3 +201,7 @@ html .clear-completed:active {
 .info a:hover {
   text-decoration: underline;
 }
+
+.edit-form {
+  margin: 0;
+}
