@@ -16,9 +16,7 @@ export default function Task(props) {
     const listItem = event.target.parentElement.parentElement
     const newTodoList = props.todoList
 
-    console.log(newTodoList)
     delete newTodoList[props.index]
-    console.log(newTodoList)
     listItem.className !== 'completed' ? props.todoListSetter(newTodoList) : props.todoListSetter([...newTodoList])
 
     if (listItem.className !== 'completed') props.setItemsLeft(props.itemsLeft - 1)

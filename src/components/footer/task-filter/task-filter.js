@@ -6,8 +6,6 @@ export default function TaskFilter() {
 
     previousSelected.classList.toggle('selected')
     event.target.classList.toggle('selected')
-    console.log(previousSelected)
-    console.log(event.target)
   }
 
   function disableItems(type) {
