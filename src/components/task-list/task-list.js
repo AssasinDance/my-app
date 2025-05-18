@@ -10,6 +10,7 @@ export default function TaskList(props) {
             <Task
               key={index}
               todo={todo}
+              timer={props.timers[index]}
               index={index}
               todoListSetter={props.todoListSetter}
               todoList={props.todoList}

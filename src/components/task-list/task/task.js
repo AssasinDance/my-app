@@ -1,16 +1,29 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import './task.css'
 import { formatDistanceToNow } from 'date-fns/formatDistanceToNow'
 
 export default function Task(props) {
   const dateNow = useRef(Date.now())
+  const [intervalId, setIntervalId] = useState(null)
+  const [timer, setTimer] = useState(props.timer)
   const [date, setDate] = useState(formatDistanceToNow(dateNow.current, { includeSeconds: true }))
-  useCallback(
-    setInterval(() => {
+
+  useEffect(() => {
+    const id = setInterval(() => {
       setDate(formatDistanceToNow(dateNow.current, { includeSeconds: true }))
-    }, 5000),
-    []
-  )
+    }, 5000)
+
+    return () => clearInterval(id) // Очистка при размонтировании
+  }, [])
+
+  // Очистка таймера при размонтировании
+  useEffect(() => {
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId)
+      }
+    }
+  }, [intervalId])
 
   function destroyElement(event) {
     const listItem = event.target.parentElement.parentElement
@@ -74,12 +87,46 @@ export default function Task(props) {
     filterButton.click()
   }
 
+  function playTimerHandler() {
+    if (!intervalId) {
+      const id = setInterval(() => {
+        setTimer((prev) => {
+          if (prev <= 0) {
+            pauseTimerHandler()
+            return 0
+          }
+          return prev - 1
+        })
+      }, 1000)
+      setIntervalId(id) // Сохраняем ID интервала
+    }
+  }
+
+  function pauseTimerHandler() {
+    if (intervalId) {
+      clearInterval(intervalId)
+      setIntervalId(null)
+    }
+  }
+
+  function convertTimer(timer) {
+    let minutes = String(Math.floor(timer / 60))
+    let seconds = timer % 60 > 9 ? String(timer % 60) : '0' + String(timer % 60)
+
+    return `${minutes}:${seconds}`
+  }
+
   return (
     <li data-item-id={props.index}>
       <div className="view">
         <input className="toggle" type="checkbox" onChange={toggleElement} />
         <label>
-          <span className="description">{props.todo}</span>
+          <span className="title">{props.todo}</span>
+          <span className="description">
+            <button className="icon icon-play" onClick={() => playTimerHandler()}></button>
+            <button className="icon icon-pause" onClick={() => pauseTimerHandler()}></button>
+            <span>{convertTimer(timer)}</span>
+          </span>
           <span className="created">{'created ' + date + ' ago'}</span>
         </label>
         <button className="icon icon-edit" onClick={editElement} />
