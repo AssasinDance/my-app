@@ -37,21 +37,21 @@ export default function Task(props) {
 
   function editElement(event) {
     const listItem = event.target.parentElement.parentElement
-    const description = listItem.querySelector('.description')
+    const title = listItem.querySelector('.title')
     const editInput = listItem.querySelector('.edit')
     const view = listItem.querySelector('.view')
 
     listItem.classList.toggle('editing')
 
     view.style = 'display: none;'
-    editInput.value = description.innerHTML
+    editInput.value = title.innerHTML
     editInput.style = 'display: block;'
     editInput.focus()
   }
 
   function submitEditedElement(event) {
     const listItem = event.target.parentElement
-    let description = listItem.querySelector('.description')
+    let title = listItem.querySelector('.title')
     const editInput = listItem.querySelector('.edit')
     const view = listItem.querySelector('.view')
     const value = event.target.firstChild.value
@@ -61,7 +61,7 @@ export default function Task(props) {
 
     if (value && value[0] !== ' ') {
       newTodoList[props.index] = value
-      description.innerHTML = value
+      title.innerHTML = value
       props.todoListSetter(newTodoList)
     }
 
