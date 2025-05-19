@@ -50,11 +50,11 @@ export default function Task(props) {
   }
 
   function submitEditedElement(event) {
-    const listItem = event.target.parentElement
+    const listItem = event.target.parentElement.parentElement
     let title = listItem.querySelector('.title')
     const editInput = listItem.querySelector('.edit')
     const view = listItem.querySelector('.view')
-    const value = event.target.firstChild.value
+    const value = event.target.value
 
     event.preventDefault()
     let newTodoList = props.todoList
@@ -66,7 +66,7 @@ export default function Task(props) {
     }
 
     editInput.style = 'display: none;'
-    event.target.firstChild.value = ''
+    event.target.value = ''
     view.style = 'display: block;'
 
     listItem.classList.toggle('editing')
@@ -132,7 +132,14 @@ export default function Task(props) {
         <button className="icon icon-edit" onClick={editElement} />
         <button className="icon icon-destroy" onClick={destroyElement} />
       </div>
-      <form className="edit-form" onSubmit={submitEditedElement}>
+      <form
+        className="edit-form"
+        onSubmit={(e) => submitEditedElement(e)}
+        onBlur={(e) => submitEditedElement(e)}
+        onKeyDown={(e) => {
+          if (e.code === 'Escape') e.target.blur()
+        }}
+      >
         <input type="text" className="edit" />
       </form>
     </li>
