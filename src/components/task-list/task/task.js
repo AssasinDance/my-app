@@ -6,6 +6,7 @@ export default function Task(props) {
   const dateNow = useRef(Date.now())
   const [intervalId, setIntervalId] = useState(null)
   const [timer, setTimer] = useState(props.timer)
+  const [editingInputValue, setEditingInputValue] = useState('')
   const [date, setDate] = useState(formatDistanceToNow(dateNow.current, { includeSeconds: true }))
 
   useEffect(() => {
@@ -50,14 +51,12 @@ export default function Task(props) {
   }
 
   function submitEditedElement(event) {
-    const listItem = event.target.parentElement.parentElement
+    const listItem = event.target.parentElement
     let title = listItem.querySelector('.title')
-    const editInput = listItem.querySelector('.edit')
-    const view = listItem.querySelector('.view')
-    const value = event.target.value
+    let newTodoList = props.todoList
+    const value = editingInputValue
 
     event.preventDefault()
-    let newTodoList = props.todoList
 
     if (value && value[0] !== ' ') {
       newTodoList[props.index] = value
@@ -65,11 +64,7 @@ export default function Task(props) {
       props.todoListSetter(newTodoList)
     }
 
-    editInput.style = 'display: none;'
-    event.target.value = ''
-    view.style = 'display: block;'
-
-    listItem.classList.toggle('editing')
+    event.target.firstChild.blur()
   }
 
   function toggleElement(event) {
@@ -87,12 +82,12 @@ export default function Task(props) {
     filterButton.click()
   }
 
-  function playTimerHandler() {
+  function playTimer() {
     if (!intervalId) {
       const id = setInterval(() => {
         setTimer((prev) => {
           if (prev <= 0) {
-            pauseTimerHandler()
+            pauseTimer()
             return 0
           }
           return prev - 1
@@ -102,7 +97,7 @@ export default function Task(props) {
     }
   }
 
-  function pauseTimerHandler() {
+  function pauseTimer() {
     if (intervalId) {
       clearInterval(intervalId)
       setIntervalId(null)
@@ -116,6 +111,22 @@ export default function Task(props) {
     return `${minutes}:${seconds}`
   }
 
+  function cancelEditing(event) {
+    const listItem = event.target.parentElement.parentElement
+    const editInput = listItem.querySelector('.edit')
+    const view = listItem.querySelector('.view')
+    const title = listItem.querySelector('.title')
+
+    event.preventDefault()
+
+    editInput.style = 'display: none;'
+    event.target.value = ''
+    view.style = 'display: block;'
+
+    listItem.classList.toggle('editing')
+    setEditingInputValue(title.innerHTML)
+  }
+
   return (
     <li data-item-id={props.index}>
       <div className="view">
@@ -123,8 +134,8 @@ export default function Task(props) {
         <label>
           <span className="title">{props.todo}</span>
           <span className="description">
-            <button className="icon icon-play" onClick={() => playTimerHandler()}></button>
-            <button className="icon icon-pause" onClick={() => pauseTimerHandler()}></button>
+            <button className="icon icon-play" onClick={() => playTimer()}></button>
+            <button className="icon icon-pause" onClick={() => pauseTimer()}></button>
             <span>{convertTimer(timer)}</span>
           </span>
           <span className="created">{'created ' + date + ' ago'}</span>
@@ -135,12 +146,17 @@ export default function Task(props) {
       <form
         className="edit-form"
         onSubmit={(e) => submitEditedElement(e)}
-        onBlur={(e) => submitEditedElement(e)}
+        onBlur={(e) => cancelEditing(e)}
         onKeyDown={(e) => {
-          if (e.code === 'Escape') e.target.blur()
+          if (e.key === 'Escape') e.target.blur()
         }}
       >
-        <input type="text" className="edit" />
+        <input
+          type="text"
+          className="edit"
+          value={editingInputValue}
+          onChange={(e) => setEditingInputValue(e.target.value)}
+        />
       </form>
     </li>
   )

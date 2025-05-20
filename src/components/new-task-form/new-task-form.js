@@ -29,6 +29,17 @@ export default function NewTaskForm(props) {
     }
   }
 
+  function validateNumberInput(event) {
+    const char = event.target.value.at(-1)
+
+    if (char >= '0' && char <= '9') {
+      return
+    } else {
+      event.target.value = event.target.value.slice(0, -1)
+    }
+    console.log(event)
+  }
+
   return (
     <header className="header">
       <h1>todos</h1>
@@ -42,13 +53,20 @@ export default function NewTaskForm(props) {
         />
         <input
           value={min}
-          onChange={(e) => setMin(e.target.value)}
+          onChange={(e) => {
+            validateNumberInput(e)
+            setMin(e.target.value)
+          }}
           className="new-todo-form__timer new-todo-form__timer--min"
           placeholder="Min"
         />
         <input
           value={sec}
-          onChange={(e) => setSec(e.target.value)}
+          onKeyDown={(e) => validateNumberInput(e)}
+          onChange={(e) => {
+            validateNumberInput(e)
+            setSec(e.target.value)
+          }}
           className="new-todo-form__timer new-todo-form__timer--sec"
           placeholder="Sec"
         />
