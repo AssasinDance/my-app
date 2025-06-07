@@ -1,5 +1,5 @@
 import './task-list.css'
-import Task from './task/task.js'
+import Task from './task/task.jsx'
 
 export default function TaskList(props) {
   return (

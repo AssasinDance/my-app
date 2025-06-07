@@ -1,8 +1,8 @@
 import { useState } from 'react'
 
-import Footer from './components/footer/footer.js'
-import NewTaskForm from './components/new-task-form/new-task-form.js'
-import TaskList from './components/task-list/task-list.js'
+import Footer from './components/footer/footer.jsx'
+import NewTaskForm from './components/new-task-form/new-task-form.jsx'
+import TaskList from './components/task-list/task-list.jsx'
 
 export default function App() {
   const [todos, setTodos] = useState([])

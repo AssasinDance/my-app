@@ -1,6 +1,6 @@
 import './footer.css'
 
-import TaskFilter from './task-filter/task-filter.js'
+import TaskFilter from './task-filter/task-filter.jsx'
 
 export default function Footer(props) {
   function clearCompleted() {
