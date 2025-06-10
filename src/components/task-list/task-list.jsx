@@ -1,16 +1,16 @@
 import './task-list.css'
+
 import Task from './task/task.jsx'
 
 export default function TaskList(props) {
   return (
     <ul className="todo-list">
-      {props.todoList.map((todo, index) => {
+      {props.viewedTodos.map((todo, index) => {
         if (todo) {
           return (
             <Task
               key={index}
               todo={todo}
-              timer={props.timers[index]}
               index={index}
               todoListSetter={props.todoListSetter}
               todoList={props.todoList}

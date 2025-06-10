@@ -1,29 +1,42 @@
 import './footer.css'
+import { useState, useEffect } from 'react'
 
 import TaskFilter from './task-filter/task-filter.jsx'
 
 export default function Footer(props) {
+  const [currentFilter, setCurrentFilter] = useState('all')
+
   function clearCompleted() {
-    const todoList = document.querySelector('.todo-list')
-    let newTodoList = props.todoList
-    const listItems = todoList.children
+    let newTodos = [...props.todos]
 
-    for (let item of listItems) {
-      if (item.className === 'completed' || item.className === 'completed editing') {
-        delete newTodoList[item.getAttribute('data-item-id')]
-        item.querySelector('.toggle').click()
-        item.className = 'hidden'
-      }
+    newTodos = newTodos.filter((todo) => !todo.completed)
+
+    props.setTodos(newTodos)
+  }
+
+  useEffect(() => {
+    switch (currentFilter) {
+      case 'active':
+        return props.setViewedTodos(props.todos.filter((task) => !task.completed))
+      case 'completed':
+        return props.setViewedTodos(props.todos.filter((task) => task.completed))
+      default:
+        return props.setViewedTodos(props.todos)
     }
+  }, [currentFilter, props.todos])
 
-    props.todoListSetter(newTodoList)
-    props.setItemsLeft(newTodoList.filter((item) => item).length)
+  function countItems(todos) {
+    const onlyUncompleted = todos.filter((todo) => {
+      return !todo.completed
+    })
+
+    return onlyUncompleted.length
   }
 
   return (
     <footer className="footer">
-      <span className="todo-count">{props.itemsLeft} items left</span>
-      <TaskFilter />
+      <span className="todo-count">{countItems(props.todos)} items left</span>
+      <TaskFilter currentFilter={currentFilter} onFilterChange={setCurrentFilter} />
       <button className="clear-completed" onClick={clearCompleted}>
         Clear completed
       </button>

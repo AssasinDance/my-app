@@ -6,6 +6,7 @@ export default function NewTaskForm(props) {
   const [todo, setTodo] = useState('')
   const [min, setMin] = useState('')
   const [sec, setSec] = useState('')
+  const [idCounter, setIdCounter] = useState(0)
 
   function resetNewTaskForm() {
     setTodo('')
@@ -18,11 +19,21 @@ export default function NewTaskForm(props) {
     const numberedMin = Number(min)
     const numberedSec = Number(sec)
 
+    setIdCounter((prev) => prev + 1)
+
     if (todo && todo[0] !== ' ') {
       if (!Number.isNaN(numberedMin) && !Number.isNaN(numberedSec)) {
-        props.todoListSetter((prev) => [...prev, todo])
-        props.setItemsLeft((prev) => prev + 1)
-        props.setTimers((prev) => [...prev, numberedMin * 60 + numberedSec])
+        props.todoListSetter((prev) => [
+          ...prev,
+          {
+            value: todo,
+            completed: false,
+            id: idCounter,
+            style: {},
+            edited: false,
+            timer: numberedMin * 60 + numberedSec,
+          },
+        ])
 
         resetNewTaskForm()
       }
@@ -37,7 +48,6 @@ export default function NewTaskForm(props) {
     } else {
       event.target.value = event.target.value.slice(0, -1)
     }
-    console.log(event)
   }
 
   return (
