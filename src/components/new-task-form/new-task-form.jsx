@@ -32,6 +32,8 @@ export default function NewTaskForm(props) {
             style: {},
             edited: false,
             timer: numberedMin * 60 + numberedSec,
+            intervalId: null,
+            createdDate: Date.now(),
           },
         ])
 

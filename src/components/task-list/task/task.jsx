@@ -1,37 +1,30 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import './task.css'
 import { formatDistanceToNow } from 'date-fns/formatDistanceToNow'
 
 export default function Task(props) {
-  const dateNow = useRef(Date.now())
-  const [timer, setTimer] = useState(0)
-  const [intervalId, setIntervalId] = useState(null)
   const [editingInputValue, setEditingInputValue] = useState('')
-  const [date, setDate] = useState(formatDistanceToNow(dateNow.current, { includeSeconds: true }))
+  const [date, setDate] = useState(formatDistanceToNow(props.todo.createdDate, { includeSeconds: true }))
+  const index = props.todoList
+    .map(function (el) {
+      return el.id
+    })
+    .indexOf(props.id)
 
   useEffect(() => {
     const id = setInterval(() => {
-      setDate(formatDistanceToNow(dateNow.current, { includeSeconds: true }))
+      setDate(formatDistanceToNow(props.todo.createdDate, { includeSeconds: true }))
     }, 5000)
-
-    setTimer(props.todoList[props.index].timer)
 
     return () => clearInterval(id) // Очистка при размонтировании
   }, [])
 
-  // Очистка таймера при размонтировании
-  useEffect(() => {
-    return () => {
-      if (intervalId) {
-        clearInterval(intervalId)
-      }
-    }
-  }, [intervalId])
-
   function destroyElement() {
     let newTodoList = [...props.todoList]
 
-    newTodoList = [...newTodoList.slice(0, props.index), ...newTodoList.slice(props.index + 1)]
+    if (props.todo.intervalId) clearInterval(props.todo.intervalId)
+
+    newTodoList = [...newTodoList.slice(0, index), ...newTodoList.slice(index + 1)]
 
     props.todoListSetter(newTodoList)
   }
@@ -52,16 +45,13 @@ export default function Task(props) {
   }
 
   function submitEditedElement(event) {
-    const listItem = event.target.parentElement
-    let title = listItem.querySelector('.title')
     let newTodoList = props.todoList
     const value = editingInputValue
 
     event.preventDefault()
 
     if (value && value[0] !== ' ') {
-      newTodoList[props.index] = { ...props.todoList[props.index], value: value }
-      title.innerHTML = value
+      newTodoList[index].value = value
       props.todoListSetter(newTodoList)
     }
 
@@ -69,29 +59,44 @@ export default function Task(props) {
   }
 
   function playTimer() {
-    if (!intervalId) {
-      let counter = timer
+    if (!props.todo.intervalId) {
+      let counter = props.todo.timer
+      let newTodo = props.todo
       const id = setInterval(() => {
+        console.log('Tick')
         if (counter <= 0) {
           pauseTimer(id)
-          setTimer(0)
           counter = 0
         } else {
           counter--
-          setTimer((prev) => prev - 1)
         }
+        newTodo.timer = counter
+        props.todoListSetter((prev) => {
+          const index = prev
+            .map(function (el) {
+              return el.id
+            })
+            .indexOf(props.id)
+
+          if (index) {
+            prev[index] = newTodo
+          }
+          return [...prev]
+        })
       }, 1000)
-      setIntervalId(id) // Сохраняем ID интервала
+      let newTodos = [...props.todoList]
+      newTodos[index].intervalId = id
+      props.todoListSetter(newTodos)
     }
   }
 
-  function pauseTimer(id = intervalId) {
+  function pauseTimer(id = props.todo.intervalId) {
+    console.log(`id: ${id}`)
     if (id) {
-      let newTodos = [...props.todoList]
-      newTodos[props.index] = { ...newTodos[props.index], timer: timer }
-      props.todoListSetter(newTodos)
       clearInterval(id)
-      setIntervalId(null)
+      let newTodos = [...props.todoList]
+      newTodos[index].intervalId = null
+      props.todoListSetter(newTodos)
     }
   }
 
@@ -120,27 +125,41 @@ export default function Task(props) {
   }
 
   function toggleCheckbox() {
-    let newTodoList = [...props.todoList]
+    console.log('inner')
+    const index = props.todoList
+      .map((el) => {
+        return el.id
+      })
+      .indexOf(props.id)
+    const completed = props.todoList[index].completed
 
-    newTodoList[props.index] = { ...newTodoList[props.index], completed: !newTodoList[props.index].completed }
-    props.todoListSetter(newTodoList)
+    props.todoListSetter((prev) => {
+      console.log(index)
 
-    if (!props.todo.completed) {
-      newTodoList[props.index] = {
-        ...newTodoList[props.index],
-        style: { ...newTodoList[props.index].style, color: '#cdcdcd', textDecoration: 'line-through' },
+      if (index || index === 0) {
+        prev[index].completed = !completed
+        console.log(prev[index].completed)
+
+        if (prev[index].completed) {
+          prev[index].style = { ...prev[index].style, color: '#cdcdcd', textDecoration: 'line-through' }
+        } else prev[index].style = { ...prev[index], color: '#4d4d4d', textDecoration: 'none' }
       }
-    } else
-      newTodoList[props.index] = {
-        ...newTodoList[props.index],
-        style: { ...newTodoList[props.index], color: '#4d4d4d', textDecoration: 'none' },
-      }
+      return [...prev]
+    })
   }
 
   return (
-    <li data-item-id={props.index}>
+    <li data-item-id={props.id}>
       <div className="view">
-        <input className="toggle" type="checkbox" checked={props.todo.completed} onChange={() => toggleCheckbox()} />
+        <input
+          className="toggle"
+          type="checkbox"
+          checked={props.todo.completed}
+          onChange={() => {
+            console.log('onChangeToggle')
+            toggleCheckbox()
+          }}
+        />
         <label>
           <span className="title" style={props.todo.style}>
             {props.todo.value}
@@ -148,7 +167,7 @@ export default function Task(props) {
           <span className="description">
             <button className="icon icon-play" onClick={() => playTimer()}></button>
             <button className="icon icon-pause" onClick={() => pauseTimer()}></button>
-            <span>{convertTimer(timer)}</span>
+            <span>{convertTimer(props.todo.timer)}</span>
           </span>
           <span className="created">{'created ' + date + ' ago'}</span>
         </label>

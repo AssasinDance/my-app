@@ -6,7 +6,7 @@ import TaskList from './components/task-list/task-list.jsx'
 
 export default function App() {
   const [todos, setTodos] = useState([])
-  const [viewedTodos, setViewedTodos] = useState([])
+  const [currentFilter, setCurrentFilter] = useState('all')
   const [itemsLeft, setItemsLeft] = useState(0)
 
   return (
@@ -14,16 +14,15 @@ export default function App() {
       <NewTaskForm todoListSetter={setTodos} setItemsLeft={setItemsLeft} />
       <section className="main">
         <TaskList
-          setViewedTodos={setViewedTodos}
-          viewedTodos={viewedTodos}
+          currentFilter={currentFilter}
           todoListSetter={setTodos}
           todoList={todos}
           itemsLeft={itemsLeft}
           setItemsLeft={setItemsLeft}
         />
         <Footer
-          setViewedTodos={setViewedTodos}
-          viewedTodos={viewedTodos}
+          currentFilter={currentFilter}
+          setCurrentFilter={setCurrentFilter}
           setTodos={setTodos}
           todos={todos}
           itemsLeft={itemsLeft}
