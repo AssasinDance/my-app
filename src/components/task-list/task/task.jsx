@@ -63,7 +63,6 @@ export default function Task(props) {
       let counter = props.todo.timer
       let newTodo = props.todo
       const id = setInterval(() => {
-        console.log('Tick')
         if (counter <= 0) {
           pauseTimer(id)
           counter = 0
@@ -91,7 +90,6 @@ export default function Task(props) {
   }
 
   function pauseTimer(id = props.todo.intervalId) {
-    console.log(`id: ${id}`)
     if (id) {
       clearInterval(id)
       let newTodos = [...props.todoList]
@@ -125,7 +123,6 @@ export default function Task(props) {
   }
 
   function toggleCheckbox() {
-    console.log('inner')
     const index = props.todoList
       .map((el) => {
         return el.id
@@ -134,11 +131,8 @@ export default function Task(props) {
     const completed = props.todoList[index].completed
 
     props.todoListSetter((prev) => {
-      console.log(index)
-
       if (index || index === 0) {
         prev[index].completed = !completed
-        console.log(prev[index].completed)
 
         if (prev[index].completed) {
           prev[index].style = { ...prev[index].style, color: '#cdcdcd', textDecoration: 'line-through' }
@@ -151,15 +145,7 @@ export default function Task(props) {
   return (
     <li data-item-id={props.id}>
       <div className="view">
-        <input
-          className="toggle"
-          type="checkbox"
-          checked={props.todo.completed}
-          onChange={() => {
-            console.log('onChangeToggle')
-            toggleCheckbox()
-          }}
-        />
+        <input className="toggle" type="checkbox" checked={props.todo.completed} onChange={() => toggleCheckbox()} />
         <label>
           <span className="title" style={props.todo.style}>
             {props.todo.value}
